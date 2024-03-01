@@ -1,4 +1,5 @@
 import time
+import openpyxl as op
 import tabulate as tb
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -33,14 +34,24 @@ try:
     
     # Cria uma tabela com os preços para o site Kabum
     productCards = driver.find_elements(By.CLASS_NAME, 'productCard')
-    table = []
+    listNames = []
+    listPrice = []
     col = ["Nome", "Preço"]
     for x in productCards:
-        item = []
-        item.append(x.find_element(By.CLASS_NAME, 'nameCard').text)
-        item.append(x.find_element(By.CLASS_NAME, 'priceCard').text)
-        table.append(item)
-    print(tb.tabulate(table, headers=col, tablefmt="fancy_grid"))
+        listNames.append(x.find_element(By.CLASS_NAME, 'nameCard').text)
+        listPrice.append(x.find_element(By.CLASS_NAME, 'priceCard').text)
+
+    planilha = op.Workbook()
+    cell = planilha['Sheet']
+    cell.title = 'Primeira planilha'
+    cell['A1'] = 'Nome'
+    cell['B1'] = 'Preço'
+    index = 2
+    for name, price in zip(listNames, listPrice):
+        cell.cell(column=1,row=index, value=name)
+        cell.cell(column=2,row=index, value=price)
+        index += 1
+    planilha.save('primeira_planilha.xlsx')
 finally:
     # Fecha o Chrome
     time.sleep(5)
